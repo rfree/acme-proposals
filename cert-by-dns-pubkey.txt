@@ -1,8 +1,12 @@
-
 Following idea aims to make it easier to create and update certificate, for people who
 do not have easy or comfortable enough access to often update their DNS entries.
-
 ( based on https://letsencrypt.github.io/acme-spec/#rfc.section.7.4 )
+
+And also to define advanced wildcard.
+
+This will be also very helpful for people who administrate not Internet-accessible domains,
+for example domains in the Cjdns meshnet/VPN network.
+
 
 === Usage ===
 
@@ -14,25 +18,15 @@ User (once per given domain, forever) will:
 encoding of his UserKey's public-key part.
 - optionally also publish a TXT record with the date (in UTC+0 timezone) of expiration of said key,
 in format YYYY-MM-DD. (The key can be used up to, and including entire, that day).
-- optionally also publish a TXT record with the pattern of allowed subdomains 
-- optionally also publish a TXT record with the pattern of allowed subdomains that will obtain a wildcard certificate (see below)
+- optionally also publish a TXT record with the pattern that defines list of possible subdomains for which you are allowed to obtain a single-domain certificate
+- optionally also publish a TXT record with the pattern that defines list like above, but for requesting for them a wildcard certificates also (and the requested wildcard certificates must define a list of domains that is a sub-set, or equal to, this list)
 
 For example, for domain "example.com" the DNS record could be like:
 _acme-userkey-pubkey.example.com. 300 IN TXT "gfj9Xq...Rg85nM"
 _acme-userkey-validuntil.example.com. 300 IN TXT "2017-01-01"
 _acme-userkey-cert-for-domain.example.com. 300 IN TXT "h.*.example.com"
 _acme-userkey-cert-for-wildcard.example.com. 300 IN TXT "*.test.example.com"
-
-The domain and wildcard fields are text of allowed URL, and you can use "*" wildcard in them.
-
-Consider a subtle but crucial difference on following example:
-
-Allowing requesting single domain certificate with
-_acme-userkey-cert-for-domain.example.com. with value "*.example.com" allows user to request e.g. foo.example.com certificate with one client-request, and bar.example.com com with another.
-
-And instead, allowing requesting wildcard domains certificates with
-_acme-userkey-cert-for-wildcard.example.com. with value "*.example.com" allows user to make one client-request that will get certification from provider on his own certificate that is a wildcard certificate for domains *.example.com.
-[TODO?]
+(see below for explanation of wildcard behaviour)
 
 User (once per given domain, for each certificate refresh) will:
 - create the ceretification request, and will sign it using his Ed25519 privatekey, that request is in format:
@@ -50,6 +44,26 @@ it is like the one used in type "dns", with following changes:
 -- the field "clientPublicKey" - is now optional if given
 - will send the signed request to provider.
 - no update to DNS is needed.
+
+
+--- Explanation of wildcard ---
+
+The domain and wildcard fields are text of allowed URL, and you can use "*" wildcard in them.
+
+Examples of wildcards:
+If you define _acme-userkey-cert-for-wildcard.example.com to be "h.*.*.example.com" then you can issue a request to:
+- create a single-domain certificate for h.foo.bar.example.com
+- create a wildcard certificate for h.*.bar.example.com
+- create a wildcard certificate for h.foo.*.example.com
+- create a wildcard certificate for h.*.*.example.com (if the provider does support multi wildcard certificates)
+- you can NOT create a wildcard certificate for x.foo.*.example.com because it does not match
+- you can NOT create a wildcard certificate for *.foo.*.example.com because it does not match (allows creation of x.foo.bar instead of h.foo.bar) 
+
+Also, consider a subtle but crucial difference on following example:
+1) Allowing requesting single domain certificate with
+_acme-userkey-cert-for-domain.example.com. with value "*.example.com" allows user to request e.g. foo.example.com certificate with one client-request, and bar.example.com com with another.
+2) And instead, allowing requesting wildcard domains certificates with
+_acme-userkey-cert-for-wildcard.example.com. with value "*.example.com" allows user to make one client-request that will get certification from provider on his own certificate that is a wildcard certificate for domains *.example.com.
 
 
 
