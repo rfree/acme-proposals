@@ -12,6 +12,12 @@ it will be called UserKey.
 User (once per given domain, forever) will:
 - publish in the DNS a TXT record with the b64 encoding of the standard
 encoding of his UserKey's public-key part.
+- optionally also publish a TXT record with the date (in UTC+0 timezone) of expiration of said key,
+in format YYYY-MM-DD. (The key can be used up to, and including entire, that day).
+
+For example, for domain "example.com" the DNS record could be like:
+_acme-userkey-pubkey.example.com. 300 IN TXT "gfj9Xq...Rg85nM"
+_acme-userkey-validuntil.example.com. 300 IN TXT "2017-01-01"
 
 User (once per given domain, for each certificate refresh) will:
 - create the ceretification request, and will sign it using his Ed25519 privatekey.
