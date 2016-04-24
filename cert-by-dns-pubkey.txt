@@ -14,10 +14,21 @@ User (once per given domain, forever) will:
 encoding of his UserKey's public-key part.
 - optionally also publish a TXT record with the date (in UTC+0 timezone) of expiration of said key,
 in format YYYY-MM-DD. (The key can be used up to, and including entire, that day).
+- optionally also publish a TXT record with the pattern of allowed subdomains 
+- optionally also publish a TXT record with the pattern of allowed subdomains that will obtain a wildcard certificate (see below)
 
 For example, for domain "example.com" the DNS record could be like:
 _acme-userkey-pubkey.example.com. 300 IN TXT "gfj9Xq...Rg85nM"
 _acme-userkey-validuntil.example.com. 300 IN TXT "2017-01-01"
+_acme-userkey-cert-for-domain.example.com. 300 IN TXT "h.*.example.com"
+_acme-userkey-cert-for-wildcard.example.com. 300 IN TXT "*.test.example.com"
+
+The domain and wildcard fields are text of allowed URL, and you can use "*" wildcard in them.
+
+Consider a subtle but crucial difference on following example:
+_acme-userkey-cert-for-domain.example.com. with value "*.example.com" allows user to request e.g. foo.example.com certificate with one client-request, and bar.example.com com with another.
+And instead, using _acme-userkey-cert-for-domain.example.com. with value "*.example.com" allows user to make one client-request that will get certification from provider on his own certificate that is a wildcard certificate for domains *.example.com.
+[TODO?]
 
 User (once per given domain, for each certificate refresh) will:
 - create the ceretification request, and will sign it using his Ed25519 privatekey, that request is in format:
