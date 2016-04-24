@@ -4,7 +4,7 @@ do not have easy or comfortable enough access to often update their DNS entries.
 
 ( based on https://letsencrypt.github.io/acme-spec/#rfc.section.7.4 )
 
-Usage:
+=== Usage ===
 
 User (once forever) needs to create a keypair of Ed25519 cryptosystem,
 it will be called UserKey.
@@ -20,10 +20,21 @@ _acme-userkey-pubkey.example.com. 300 IN TXT "gfj9Xq...Rg85nM"
 _acme-userkey-validuntil.example.com. 300 IN TXT "2017-01-01"
 
 User (once per given domain, for each certificate refresh) will:
-- create the ceretification request, and will sign it using his Ed25519 privatekey.
+- create the ceretification request, and will sign it using his Ed25519 privatekey, that request is in format:
+{
+  "type": "sign-keyindns"
+  "clientPublicKey": { "kty": "EC", ... },
+  "validation": {
+    "header": { "alg": "HS256" },
+    "payload": "qzu9...6bjn",
+    "signature": "gfj9XqFv07e1wU66hSLYkiFqYakPSjAu8TsyXRg85nM"
+  }
+}
+it is like the one used in type "dns", with following changes:
+-- the "type" is "sign-keyindns"
+-- the field "clientPublicKey" - is now optional if given
 - will send the signed request to provider.
 - no update to DNS is needed.
-
 
 
 
