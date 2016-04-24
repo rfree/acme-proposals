@@ -1,0 +1,23 @@
+
+Following idea aims to make it easier to create and update certificate, for people who
+do not have easy or comfortable enough access to often update their DNS entries.
+
+( based on https://letsencrypt.github.io/acme-spec/#rfc.section.7.4 )
+
+Usage:
+
+User (once forever) needs to create a keypair of Ed25519 cryptosystem,
+it will be called UserKey.
+
+User (once per given domain, forever) will:
+- publish in the DNS a TXT record with the b64 encoding of the standard
+encoding of his UserKey's public-key part.
+
+User (once per given domain, for each certificate refresh) will:
+- create the ceretification request, and will sign it using his Ed25519 privatekey.
+- will send the signed request to provider.
+- no update to DNS is needed.
+
+
+
+
